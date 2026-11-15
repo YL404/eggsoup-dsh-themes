@@ -1694,6 +1694,54 @@ window.__ModuleLoader__.load({
     const STORAGE_KEY = 'eggsoup-dsh-themes:selected';
     const DEFAULT_THEME = 'eggsoup-vitesse-nyx';
     const OVERRIDE_SOURCE = 'eggsoup-dsh-themes';
+
+    // Theme previews borrow the real pixel-art backdrop and the dark palette
+    // that gives each theme its identity. Ocean has no art, so its accent glow
+    // substitutes for the sky.
+    const previewArt = theme => {
+      const match = /--nyx-art: url\("(data:image\/png;base64,[^"]+)"\)/.exec(theme.css);
+      return match === null ? null : match[1];
+    };
+    const previewPalette = theme => {
+      const token = name => theme.tokens[name]?.dark;
+      return {
+        bg: token('--dsw-alias-bg-base') ?? theme.preview?.[0],
+        sidebar: token('--dsw-specific-sidebar-fill') ?? token('--dsw-alias-bg-layer-1') ?? theme.preview?.[1],
+        surface: token('--dsw-alias-bg-layer-2') ?? theme.preview?.[1],
+        input: token('--dsw-specific-input-major') ?? token('--dsw-alias-bg-layer-2') ?? theme.preview?.[1],
+        bubble: token('--dsw-specific-bubble') ?? token('--dsw-alias-bg-layer-2') ?? theme.preview?.[1],
+        accent: token('--dsw-alias-brand-primary') ?? theme.preview?.[2],
+        secondary: theme.darkOnly
+          ? theme.preview?.[3] ?? token('--dsw-alias-border-l3')
+          : token('--dsw-alias-brand-primary') ?? theme.preview?.[2],
+        text: token('--dsw-alias-label-primary') ?? theme.preview?.[3],
+        muted: token('--dsw-alias-label-secondary') ?? theme.preview?.[2],
+        border: token('--dsw-alias-border-l2') ?? theme.preview?.[1],
+      };
+    };
+    const previewBackdrop = theme => {
+      const art = previewArt(theme);
+      if (art !== null) return `url("${art}")`;
+      const palette = previewPalette(theme);
+      return `radial-gradient(120% 90% at 78% 18%, color-mix(in srgb, ${palette.accent} 30%, transparent), transparent 62%), linear-gradient(155deg, ${palette.bg}, ${palette.surface})`;
+    };
+    const previewStyle = theme => {
+      if (theme.id === null) return undefined;
+      const palette = previewPalette(theme);
+      return {
+        '--eggsoup-pv-bg': palette.bg,
+        '--eggsoup-pv-sidebar': palette.sidebar,
+        '--eggsoup-pv-surface': palette.surface,
+        '--eggsoup-pv-input': palette.input,
+        '--eggsoup-pv-bubble': palette.bubble,
+        '--eggsoup-pv-accent': palette.accent,
+        '--eggsoup-pv-secondary': palette.secondary,
+        '--eggsoup-pv-text': palette.text,
+        '--eggsoup-pv-muted': palette.muted,
+        '--eggsoup-pv-border': palette.border,
+        '--eggsoup-pv-art': previewBackdrop(theme),
+      };
+    };
     const UI_CSS = `
 /* Themes settings page: the header block follows host settings sections,
    and the picker lays its cards out in a responsive grid. */
@@ -1717,13 +1765,25 @@ window.__ModuleLoader__.load({
   gap: 12px;
 }
 .eggsoup-theme {
+  /* Defaults paint the current DSH appearance; theme cards override every
+     color plus the backdrop from the theme's own palette. */
+  --eggsoup-pv-bg: var(--dsw-alias-bg-base);
+  --eggsoup-pv-sidebar: var(--dsw-alias-bg-layer-1);
+  --eggsoup-pv-surface: var(--dsw-alias-bg-layer-2);
+  --eggsoup-pv-input: var(--dsw-alias-bg-layer-2);
+  --eggsoup-pv-bubble: var(--dsw-alias-bg-layer-2);
+  --eggsoup-pv-accent: var(--dsw-alias-brand-primary);
+  --eggsoup-pv-secondary: var(--dsw-alias-border-l3);
+  --eggsoup-pv-text: var(--dsw-alias-label-primary);
+  --eggsoup-pv-muted: var(--dsw-alias-label-secondary);
+  --eggsoup-pv-border: var(--dsw-alias-border-l2);
+  --eggsoup-pv-art: linear-gradient(155deg, var(--dsw-alias-bg-base), var(--dsw-alias-bg-layer-2));
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  min-height: 92px;
-  padding: 12px 14px;
+  align-items: stretch;
+  gap: 8px;
+  padding: 8px;
   border: 0.5px solid var(--dsw-alias-settings-card-stroke);
   border-radius: var(--dsw-radius-xl);
   background: var(--dsw-alias-settings-card-fill);
@@ -1746,27 +1806,154 @@ window.__ModuleLoader__.load({
   outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
   outline-offset: -2px;
 }
-.eggsoup-theme-swatches { display: flex; gap: 4px; flex: none; }
-.eggsoup-theme-swatch {
-  width: 18px;
-  height: 18px;
+.eggsoup-theme-preview {
+  position: relative;
+  display: flex;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--dsw-radius-lg);
+  background-color: var(--eggsoup-pv-bg);
+  background-image: var(--eggsoup-pv-art);
+  background-position: right bottom;
+  background-size: cover;
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.16);
+}
+.eggsoup-theme-preview-default {
+  align-items: center;
+  justify-content: center;
+  background-color: var(--dsw-alias-bg-layer-1);
+  background-image: radial-gradient(circle, var(--dsw-alias-border-l2) 0.5px, transparent 0.6px);
+  background-size: 8px 8px;
+  box-shadow: inset 0 0 0 0.5px var(--dsw-alias-border-l2);
+}
+.eggsoup-preview-default-word {
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--dsw-alias-bg-layer-2);
+  color: var(--dsw-alias-label-secondary);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+.eggsoup-preview-sidebar {
+  box-sizing: border-box;
+  flex: none;
+  width: 27%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 6px;
+  background: var(--eggsoup-pv-sidebar);
+  border-right: 0.5px solid var(--eggsoup-pv-border);
+}
+.eggsoup-preview-brand {
+  width: 52%;
+  height: 5px;
+  margin-bottom: 2px;
+  border-radius: 2px;
+  background: var(--eggsoup-pv-text);
+  opacity: 0.8;
+}
+.eggsoup-preview-row {
+  width: 100%;
+  height: 5px;
+  border-radius: 2px;
+  background: var(--eggsoup-pv-muted);
+  opacity: 0.4;
+}
+.eggsoup-preview-row-wide { width: 82%; }
+.eggsoup-preview-main {
+  box-sizing: border-box;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  background: color-mix(in srgb, var(--eggsoup-pv-surface) 68%, transparent);
+}
+.eggsoup-preview-bubble {
+  align-self: flex-end;
+  width: 48%;
+  height: 13px;
+  border: 0.5px solid color-mix(in srgb, var(--eggsoup-pv-secondary) 55%, transparent);
   border-radius: 5px;
-  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.18);
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--eggsoup-pv-accent) 28%, var(--eggsoup-pv-bubble)),
+    var(--eggsoup-pv-bubble));
 }
-.eggsoup-theme-default-dot {
-  width: 18px;
+.eggsoup-preview-line {
+  width: 90%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--eggsoup-pv-muted);
+  opacity: 0.38;
+}
+.eggsoup-preview-line-wide { width: 96%; }
+.eggsoup-preview-line-short { width: 62%; }
+.eggsoup-preview-composer {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 5px;
   height: 18px;
-  border-radius: 50%;
-  border: 1px solid var(--dsw-alias-border-l3);
-  background: var(--dsw-alias-bg-base);
+  margin-top: auto;
+  padding: 0 5px;
+  border: 0.5px solid var(--eggsoup-pv-border);
+  border-radius: 5px;
+  background: var(--eggsoup-pv-input);
 }
-.eggsoup-theme-name { font-size: 14px; line-height: 22px; }
+.eggsoup-preview-composer-line {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--eggsoup-pv-muted);
+  opacity: 0.4;
+}
+.eggsoup-preview-send {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  background: var(--eggsoup-pv-secondary);
+}
+.eggsoup-theme-meta {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 0 2px 2px;
+}
+.eggsoup-theme-name { min-width: 0; font-size: 14px; line-height: 22px; }
+.eggsoup-theme-badge {
+  flex: none;
+  padding: 0 7px;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: 999px;
+  background: var(--dsw-alias-bg-layer-1);
+  color: var(--dsw-alias-label-secondary);
+  font-size: 11px;
+  line-height: 17px;
+  white-space: nowrap;
+}
 .eggsoup-theme-check {
   position: absolute;
-  top: 10px;
+  top: 12px;
   right: 12px;
-  color: var(--dsw-alias-state-success-primary);
-  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--eggsoup-pv-accent);
+  color: var(--eggsoup-pv-bg);
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.32);
 }
 `;
 
@@ -1854,6 +2041,28 @@ window.__ModuleLoader__.load({
       );
     }
 
+    function ThemePreview() {
+      return h('span', { className: 'eggsoup-theme-preview', 'aria-hidden': 'true' },
+        h('span', { className: 'eggsoup-preview-sidebar' },
+          h('span', { className: 'eggsoup-preview-brand' }),
+          h('span', { className: 'eggsoup-preview-row eggsoup-preview-row-wide' }),
+          h('span', { className: 'eggsoup-preview-row' }),
+          h('span', { className: 'eggsoup-preview-row eggsoup-preview-row-wide' }),
+          h('span', { className: 'eggsoup-preview-row' }),
+        ),
+        h('span', { className: 'eggsoup-preview-main' },
+          h('span', { className: 'eggsoup-preview-bubble' }),
+          h('span', { className: 'eggsoup-preview-line eggsoup-preview-line-wide' }),
+          h('span', { className: 'eggsoup-preview-line' }),
+          h('span', { className: 'eggsoup-preview-line eggsoup-preview-line-short' }),
+          h('span', { className: 'eggsoup-preview-composer' },
+            h('span', { className: 'eggsoup-preview-composer-line' }),
+            h('span', { className: 'eggsoup-preview-send' }),
+          ),
+        ),
+      );
+    }
+
     function ThemeSection({ t }) {
       const [selected, setSelected] = React.useState(manager.selected());
       React.useEffect(() => manager.subscribe(() => setSelected(manager.selected())), []);
@@ -1870,19 +2079,27 @@ window.__ModuleLoader__.load({
             key: theme.id ?? 'default',
             type: 'button',
             className: 'eggsoup-theme',
+            style: previewStyle(theme),
             'aria-pressed': selected === theme.id,
             onClick: () => manager.select(theme.id),
           },
-            theme.preview === null
-              ? h('span', { className: 'eggsoup-theme-default-dot', 'aria-hidden': 'true' })
-              : h('span', { className: 'eggsoup-theme-swatches', 'aria-hidden': 'true' },
-                theme.preview.map((color, index) => h('span', {
-                  key: index,
-                  className: 'eggsoup-theme-swatch',
-                  style: { background: color },
-                })),
+            theme.id === null
+              ? h('span', {
+                  key: 'preview',
+                  className: 'eggsoup-theme-preview eggsoup-theme-preview-default',
+                  'aria-hidden': 'true',
+                }, h('span', { className: 'eggsoup-preview-default-word' }, 'DSH'))
+              : h(ThemePreview, { key: 'preview' }),
+            h('span', { className: 'eggsoup-theme-meta' },
+              h('span', { className: 'eggsoup-theme-name' }, text('theme.' + (theme.id ?? 'default'), theme.name)),
+              h('span', { className: 'eggsoup-theme-badge' },
+                theme.id === null
+                  ? text('badge.default', 'Follows appearance')
+                  : theme.darkOnly
+                    ? text('badge.darkOnly', 'Dark only')
+                    : text('badge.lightAndDark', 'Light + dark'),
               ),
-            h('span', { className: 'eggsoup-theme-name' }, text('theme.' + (theme.id ?? 'default'), theme.name)),
+            ),
             selected === theme.id ? h('span', { className: 'eggsoup-theme-check', 'aria-hidden': 'true' }, '✓') : null,
           )),
         ),
@@ -1915,6 +2132,9 @@ window.__ModuleLoader__.load({
             'theme.eggsoup-vitesse-nyx': 'Vitesse Nyx',
             'theme.eggsoup-vitesse-nyx-emerald': 'Vitesse Nyx Emerald',
             'theme.eggsoup-ocean': 'Ocean',
+            'badge.default': 'Follows appearance',
+            'badge.darkOnly': 'Dark only',
+            'badge.lightAndDark': 'Light + dark',
           },
           zh: {
             title: '主题',
@@ -1923,6 +2143,9 @@ window.__ModuleLoader__.load({
             'theme.eggsoup-vitesse-nyx': 'Vitesse Nyx',
             'theme.eggsoup-vitesse-nyx-emerald': 'Vitesse Nyx Emerald',
             'theme.eggsoup-ocean': 'Ocean',
+            'badge.default': '跟随外观',
+            'badge.darkOnly': '仅深色',
+            'badge.lightAndDark': '浅色 + 深色',
           },
         }), 'eggsoup-themes: dictionaries');
 
