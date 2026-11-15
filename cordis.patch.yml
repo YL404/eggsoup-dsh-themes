@@ -1,0 +1,4 @@
+- insert:
+    - id: eggsoup-themes
+      name: 'eggsoup-dsh-themes'
+      config: {}
