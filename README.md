@@ -1,6 +1,6 @@
 # Eggsoup DSH Themes
 
-One theme manager plugin for the DSH web UI. It carries three static themes and adds a **Themes** row to **Settings > General**:
+One theme manager plugin for the DSH web UI. It carries three static themes and adds a **Themes** page to the **Settings** navigation:
 
 - Ocean
 - Vitesse Nyx
