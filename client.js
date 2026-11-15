@@ -1,9 +1,9 @@
 /**
  * Eggsoup DSH Themes: one client plugin that carries a static set of themes
- * and contributes a Theme row to Settings > General. Selecting a theme installs
- * one token-override layer over the active DSH appearance, so the built-in
- * light/dark preference stays authoritative and third-party ids never need
- * DSH's non-persistent theme preference.
+ * and contributes a Themes page to the Settings navigation. Selecting a theme
+ * installs one token-override layer over the active DSH appearance, so the
+ * built-in light/dark preference stays authoritative and third-party ids never
+ * need DSH's non-persistent theme preference.
  */
 window.__ModuleLoader__.load({
   id: 'eggsoup-dsh-themes',
@@ -1694,7 +1694,81 @@ window.__ModuleLoader__.load({
     const STORAGE_KEY = 'eggsoup-dsh-themes:selected';
     const DEFAULT_THEME = 'eggsoup-vitesse-nyx';
     const OVERRIDE_SOURCE = 'eggsoup-dsh-themes';
-    const UI_CSS = "\n.eggsoup-themes-row {\n  display: flex;\n  flex-direction: column;\n  gap: 8px;\n  padding: 16px 0;\n  border-bottom: 0.5px solid var(--dsw-alias-border-l2);\n}\n.eggsoup-themes-head { display: flex; flex-direction: column; gap: 2px; }\n.eggsoup-themes-title { font-size: 14px; line-height: 22px; color: var(--dsw-alias-label-primary); }\n.eggsoup-themes-description { font-size: 12px; line-height: 18px; color: var(--dsw-alias-label-tertiary); }\n.eggsoup-themes-list { display: flex; flex-wrap: wrap; gap: 8px; }\n.eggsoup-theme {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  min-height: 40px;\n  padding: 6px 10px;\n  border: 0.5px solid var(--dsw-alias-border-l4);\n  border-radius: var(--dsw-radius-md);\n  background: transparent;\n  color: var(--dsw-alias-label-primary);\n  font: inherit;\n  font-size: 13px;\n  line-height: 20px;\n  cursor: pointer;\n}\n@media (hover: hover) {\n  .eggsoup-theme:hover:not([aria-pressed='true']) { background: var(--dsw-alias-interactive-bg-hover); }\n}\n.eggsoup-theme[aria-pressed='true'] {\n  border-color: var(--dsw-alias-border-selected);\n  background: var(--dsw-alias-bg-module-platform);\n}\n.eggsoup-theme-swatches { display: flex; gap: 2px; flex: none; }\n.eggsoup-theme-swatch {\n  width: 10px;\n  height: 10px;\n  border-radius: 3px;\n  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.18);\n}\n.eggsoup-theme-default-dot {\n  width: 14px;\n  height: 14px;\n  border-radius: 50%;\n  border: 1px solid var(--dsw-alias-border-l3);\n  background: var(--dsw-alias-bg-base);\n}\n.eggsoup-theme-check { flex: none; color: var(--dsw-alias-state-success-primary); font-size: 12px; }\n";
+    const UI_CSS = `
+/* Themes settings page: the header block follows host settings sections,
+   and the picker lays its cards out in a responsive grid. */
+.eggsoup-themes-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 720px;
+  color: var(--dsw-alias-label-primary);
+}
+.eggsoup-themes-title { margin: 0; font-size: 18px; font-weight: 600; }
+.eggsoup-themes-description {
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-tertiary);
+}
+.eggsoup-themes-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+.eggsoup-theme {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 92px;
+  padding: 12px 14px;
+  border: 0.5px solid var(--dsw-alias-settings-card-stroke);
+  border-radius: var(--dsw-radius-xl);
+  background: var(--dsw-alias-settings-card-fill);
+  color: var(--dsw-alias-label-primary);
+  font: inherit;
+  font-size: 14px;
+  line-height: 22px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .16s, background .16s;
+}
+@media (hover: hover) {
+  .eggsoup-theme:hover:not([aria-pressed='true']) { background: var(--dsw-alias-interactive-bg-hover); }
+}
+.eggsoup-theme[aria-pressed='true'] {
+  border-color: var(--dsw-alias-border-selected);
+  background: var(--dsw-alias-bg-module-platform);
+}
+.eggsoup-theme:focus-visible {
+  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline-offset: -2px;
+}
+.eggsoup-theme-swatches { display: flex; gap: 4px; flex: none; }
+.eggsoup-theme-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.18);
+}
+.eggsoup-theme-default-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid var(--dsw-alias-border-l3);
+  background: var(--dsw-alias-bg-base);
+}
+.eggsoup-theme-name { font-size: 14px; line-height: 22px; }
+.eggsoup-theme-check {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  color: var(--dsw-alias-state-success-primary);
+  font-size: 13px;
+}
+`;
 
     const byId = id => THEMES.find(theme => theme.id === id);
     let themeService = null;
@@ -1747,7 +1821,40 @@ window.__ModuleLoader__.load({
       },
     };
 
-    function ThemeRow({ t }) {
+    function ThemeIcon({ size = 16, active = false }) {
+      return h('svg', {
+        width: size,
+        height: size,
+        viewBox: '0 0 16 16',
+        fill: 'none',
+        'aria-hidden': 'true',
+        focusable: 'false',
+      },
+        h('rect', {
+          x: 2.5,
+          y: 2.5,
+          width: 7.5,
+          height: 7.5,
+          rx: 2,
+          stroke: 'currentColor',
+          strokeWidth: 1.3,
+          opacity: active ? 1 : 0.75,
+        }),
+        h('rect', {
+          x: 6,
+          y: 6,
+          width: 7.5,
+          height: 7.5,
+          rx: 2,
+          fill: 'currentColor',
+          fillOpacity: 0.18,
+          stroke: 'currentColor',
+          strokeWidth: 1.3,
+        }),
+      );
+    }
+
+    function ThemeSection({ t }) {
       const [selected, setSelected] = React.useState(manager.selected());
       React.useEffect(() => manager.subscribe(() => setSelected(manager.selected())), []);
       const text = (key, fallback) => {
@@ -1755,11 +1862,9 @@ window.__ModuleLoader__.load({
         return value === undefined || value === key ? fallback : value;
       };
       const options = [{ id: null, name: text('theme.default', 'DSH default'), preview: null }].concat(THEMES);
-      return h('div', { className: 'eggsoup-themes-row' },
-        h('div', { className: 'eggsoup-themes-head' },
-          h('div', { className: 'eggsoup-themes-title' }, text('title', 'Themes')),
-          h('div', { className: 'eggsoup-themes-description' }, text('description', 'Choose a theme for the interface.')),
-        ),
+      return h('section', { className: 'eggsoup-themes-section' },
+        h('h2', { className: 'eggsoup-themes-title' }, text('title', 'Themes')),
+        h('p', { className: 'eggsoup-themes-description' }, text('description', 'Choose a theme for the interface.')),
         h('div', { className: 'eggsoup-themes-list', role: 'group', 'aria-label': text('title', 'Themes') },
           options.map(theme => h('button', {
             key: theme.id ?? 'default',
@@ -1800,6 +1905,7 @@ window.__ModuleLoader__.load({
         const theme = ctx.get('theme');
         if (theme === undefined) return;
         themeService = theme;
+        const t = ctx.locale.bind(NS);
 
         ctx.effect(() => ctx.locale.register(NS, {
           en: {
@@ -1847,12 +1953,18 @@ window.__ModuleLoader__.load({
         applySelection(initial);
         if (initial !== null) writeStored(initial);
 
-        ctx.effect(() => ctx.slots.inject('settings.general.item', () => ctx.slots.register({
-          name: 'settings.general.item',
+        ctx.effect(() => ctx.slots.inject('settings.section', () => ctx.slots.register({
+          name: 'settings.section',
           id: 'eggsoup-themes',
-          order: 13,
+          order: 5,
+          label: () => t('title'),
           locale: NS,
-        }, ThemeRow)), 'eggsoup-themes: settings row');
+        }, ThemeSection)), 'eggsoup-themes: settings section');
+
+        ctx.effect(() => ctx.slots.inject('settings.section.icon', () => ctx.slots.register({
+          name: 'settings.section.icon',
+          id: 'eggsoup-themes',
+        }, ThemeIcon)), 'eggsoup-themes: settings icon');
       },
     };
   },

@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "Eggsoup Themes",
-    "description": "Theme manager for the web UI: registers Ocean, Vitesse Nyx, and Vitesse Nyx Emerald, and adds a Themes row to Settings > General so you can switch between them."
+    "description": "Theme manager for the web UI: registers Ocean, Vitesse Nyx, and Vitesse Nyx Emerald, and adds a Themes page to Settings so you can switch between them."
   }
 }
