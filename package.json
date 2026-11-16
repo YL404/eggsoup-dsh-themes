@@ -2,7 +2,7 @@
   "name": "eggsoup-dsh-themes",
   "version": "0.4.1",
   "type": "module",
-  "description": "Theme manager for the DSH web UI: Ocean plus the fifteen-theme Nyx dark series (Vitesse, Vitesse Emerald, Catppuccin Mocha, Lilac Soft, Visual Studio Dark, Neutral Slate, Inkstone Xuanmo, Inkstone Canghai, Misty Teal, Aurora, Verdant Soft, Fields of the Shire, Gruvbox, Flexoki Dark, OpenChamber), with preview cards on a dedicated Themes page in Settings",
+  "description": "Theme manager for the DSH web UI: the fifteen-theme Nyx dark series (Vitesse, Vitesse Emerald, Catppuccin Mocha, Lilac Soft, Visual Studio Dark, Neutral Slate, Inkstone Xuanmo, Inkstone Canghai, Misty Teal, Aurora, Verdant Soft, Fields of the Shire, Gruvbox, Flexoki Dark, OpenChamber), with preview cards on a dedicated Themes page in Settings",
   "license": "MIT",
   "author": "eggsoup (https://github.com/YL404)",
   "repository": {

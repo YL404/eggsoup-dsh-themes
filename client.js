@@ -10,322 +10,6 @@ window.__ModuleLoader__.load({
   factory(require) {
     const React = require('react');
     const h = React.createElement;
-    const BASE_THEMES = [
-  {
-    "id": "eggsoup-ocean",
-    "name": "Ocean",
-    "darkOnly": false,
-    "tokens": {
-      "--dsw-alias-bg-base": {
-        "light": "#F5F7F8",
-        "dark": "#17212B"
-      },
-      "--dsw-alias-bg-layer-1": {
-        "light": "#EDEFF1",
-        "dark": "#333B45"
-      },
-      "--dsw-alias-bg-layer-2": {
-        "light": "#E8E9EB",
-        "dark": "#414851"
-      },
-      "--dsw-alias-bg-layer-3": {
-        "light": "#FFFFFF",
-        "dark": "#4F677B"
-      },
-      "--dsw-alias-bg-overlay": {
-        "light": "#E8E9EB",
-        "dark": "#414851"
-      },
-      "--dsw-alias-bg-document-preview": {
-        "light": "#F5F7F8",
-        "dark": "#17212B"
-      },
-      "--dsw-alias-label-document-preview": {
-        "light": "#241523",
-        "dark": "#FFFAFF"
-      },
-      "--dsw-alias-bg-document-selection": {
-        "light": "#2672AF66",
-        "dark": "#70B9EE66"
-      },
-      "--dsw-alias-bg-skeleton": {
-        "light": "#2415230F",
-        "dark": "#FFFAFF14"
-      },
-      "--dsw-alias-bg-module-platform": {
-        "light": "#EDEFF1",
-        "dark": "#333B45"
-      },
-      "--dsw-alias-bg-multi-select": {
-        "light": "#E8E9EB",
-        "dark": "#414851"
-      },
-      "--dsw-alias-border-l1": {
-        "light": "#CDD4DC",
-        "dark": "#405567"
-      },
-      "--dsw-alias-border-l2": {
-        "light": "#C0C9D4",
-        "dark": "#4F677B"
-      },
-      "--dsw-alias-border-l3": {
-        "light": "#AAB7C4",
-        "dark": "#5A7186"
-      },
-      "--dsw-alias-border-l4": {
-        "light": "#96A6B4",
-        "dark": "#6D8598"
-      },
-      "--dsw-alias-label-primary": {
-        "light": "#241523",
-        "dark": "#FFFAFF"
-      },
-      "--dsw-alias-label-secondary": {
-        "light": "#746C75",
-        "dark": "#969CA6"
-      },
-      "--dsw-alias-label-tertiary": {
-        "light": "#6F6873",
-        "dark": "#8D8F97"
-      },
-      "--dsw-alias-label-caption": {
-        "light": "#746C75",
-        "dark": "#8D8F97"
-      },
-      "--dsw-alias-label-dimmed": {
-        "light": "#8B8490",
-        "dark": "#6B7A88"
-      },
-      "--dsw-alias-label-primary-dimmed": {
-        "light": "#3A2A38",
-        "dark": "#D8E4F0"
-      },
-      "--dsw-alias-label-primary-foreground": {
-        "light": "#FFFAFF",
-        "dark": "#241523"
-      },
-      "--dsw-alias-label-shimmer": {
-        "light": "#2415234D",
-        "dark": "#FFFAFF73"
-      },
-      "--dsw-alias-menu-icon": {
-        "light": "#746C75",
-        "dark": "#8D8F97"
-      },
-      "--dsw-alias-brand-primary": {
-        "light": "#0A6F75",
-        "dark": "#5BD0D6"
-      },
-      "--dsw-alias-brand-primary-new-colorprimary-new-color": {
-        "light": "#2672AF",
-        "dark": "#70B9EE"
-      },
-      "--dsw-alias-brand-text": {
-        "light": "#241523",
-        "dark": "#FFFAFF"
-      },
-      "--dsw-alias-link": {
-        "light": "#2672AF",
-        "dark": "#70B9EE"
-      },
-      "--dsw-alias-state-business-primary": {
-        "light": "#2672AF",
-        "dark": "#70B9EE"
-      },
-      "--dsw-alias-state-business-tertiary": {
-        "light": "#D8E4EE",
-        "dark": "#324E66"
-      },
-      "--dsw-alias-button-primary-fill": {
-        "light": "#0A6F75",
-        "dark": "#5BD0D6"
-      },
-      "--dsw-alias-button-primary-hover": {
-        "light": "#096267",
-        "dark": "#6FD6DB"
-      },
-      "--dsw-alias-button-primary-dimmed": {
-        "light": "#0A6F7533",
-        "dark": "#5BD0D633"
-      },
-      "--dsw-alias-button-info-fill": {
-        "light": "#2672AF",
-        "dark": "#70B9EE"
-      },
-      "--dsw-alias-button-info-hover": {
-        "light": "#3B8ED0",
-        "dark": "#8AC9F5"
-      },
-      "--dsw-alias-interactive-bg-hover": {
-        "light": "#2672AF0F",
-        "dark": "#70B9EE1A"
-      },
-      "--dsw-alias-interactive-bg-active": {
-        "light": "#2672AF1F",
-        "dark": "#70B9EE2E"
-      },
-      "--dsw-alias-interactive-bg-hover-solid": {
-        "light": "#CDDDEA",
-        "dark": "#333B45"
-      },
-      "--dsw-alias-interactive-bg-hover-accent": {
-        "light": "#2672AF24",
-        "dark": "#70B9EE2E"
-      },
-      "--dsw-alias-markdown-code-block": {
-        "light": "#F0F1F3",
-        "dark": "#252E38"
-      },
-      "--dsw-alias-markdown-code-block-banner": {
-        "light": "#E8EBEF",
-        "dark": "#2D3743"
-      },
-      "--dsw-alias-markdown-code-segment-selected": {
-        "light": "#E4ECF2",
-        "dark": "#324E66"
-      },
-      "--dsw-alias-markdown-code-segment-unselected": {
-        "light": "#F0F1F3",
-        "dark": "#252E38"
-      },
-      "--dsw-alias-markdown-inline-code": {
-        "light": "#24152314",
-        "dark": "#FFFAFF1A"
-      },
-      "--dsw-alias-markdown-placeholder": {
-        "light": "#E8EFF4",
-        "dark": "#233544"
-      },
-      "--dsw-alias-markdown-tag": {
-        "light": "#D8E4EE",
-        "dark": "#324E66"
-      },
-      "--dsw-alias-markdown-citation": {
-        "light": "#E4ECF2",
-        "dark": "#324E66"
-      },
-      "--dsw-alias-scrollbar-bg-l1": {
-        "light": "#B7C6D4",
-        "dark": "#405567"
-      },
-      "--dsw-alias-scrollbar-bg-l2": {
-        "light": "#B7C6D4",
-        "dark": "#405567"
-      },
-      "--dsw-alias-scrollbar-hover-l1": {
-        "light": "#93A7B8",
-        "dark": "#4F677B"
-      },
-      "--dsw-alias-scrollbar-hover-l2": {
-        "light": "#93A7B8",
-        "dark": "#4F677B"
-      },
-      "--dsw-alias-state-error-primary": {
-        "light": "#FB2C36",
-        "dark": "#FB414A"
-      },
-      "--dsw-alias-state-error-secondary": {
-        "light": "#C10007",
-        "dark": "#FF6467"
-      },
-      "--dsw-alias-state-warn-primary": {
-        "light": "#FE9A00",
-        "dark": "#FE9A00"
-      },
-      "--dsw-alias-state-warn-secondary": {
-        "light": "#B74B00",
-        "dark": "#FFB900"
-      },
-      "--dsw-alias-state-warn-label": {
-        "light": "#B74B00",
-        "dark": "#FFB900"
-      },
-      "--dsw-alias-state-warn-tertiary": {
-        "light": "#FCF4E8",
-        "dark": "#3C3424"
-      },
-      "--dsw-alias-state-idle-primary": {
-        "light": "#B7C6D4",
-        "dark": "#8D8F97"
-      },
-      "--dsw-specific-bubble": {
-        "light": "#D0DFEB",
-        "dark": "#375871"
-      },
-      "--dsw-specific-bubble-highlight": {
-        "light": "#B7CFE2",
-        "dark": "#4F677B"
-      },
-      "--dsw-specific-input-major": {
-        "light": "#FFFFFF",
-        "dark": "#233544"
-      },
-      "--dsw-specific-sidebar-fill": {
-        "light": "#E4ECF2",
-        "dark": "#1E2D3B"
-      },
-      "--dsw-specific-sidebar-nav-item-active": {
-        "light": "#B7CFE2",
-        "dark": "#324F66"
-      },
-      "--dsw-specific-sidebar-nav-item-active-accent": {
-        "light": "#E8EFF4",
-        "dark": "#2D3743"
-      },
-      "--dsw-menu-surface-fill": {
-        "light": "rgba(232,233,235,.80)",
-        "dark": "rgba(65,72,81,.80)"
-      },
-      "--dsw-specific-menu": {
-        "light": "rgba(232,233,235,.80)",
-        "dark": "rgba(65,72,81,.80)"
-      },
-      "--dsw-alias-menu-group-header-fill": {
-        "light": "rgba(232,233,235,.94)",
-        "dark": "rgba(65,72,81,.94)"
-      },
-      "--dsw-specific-selector": {
-        "light": "#CDDDEA",
-        "dark": "#414851"
-      },
-      "--dsw-specific-tip": {
-        "light": "#E8EFF4",
-        "dark": "#414851"
-      },
-      "--dsw-alias-toast-bg": {
-        "light": "#241523",
-        "dark": "#414851"
-      },
-      "--dsw-alias-toast-label": {
-        "light": "#FFFAFF",
-        "dark": "#FFFAFF"
-      },
-      "--dsw-alias-tooltip-bg": {
-        "light": "#1E2D3B",
-        "dark": "#414851"
-      },
-      "--dsw-alias-turn-trigger-bg": {
-        "light": "#E8EFF4",
-        "dark": "#233544"
-      },
-      "--dsw-alias-turn-trigger-bg-hover": {
-        "light": "#D8E4EE",
-        "dark": "#324E66"
-      },
-      "--dsw-alias-switch-thumb": {
-        "light": "#FFFFFF",
-        "dark": "#FFFAFF"
-      }
-    },
-    "css": "\n      [data-platform='darwin'] [class*='sidebarCol'] {\n        background: var(--dsw-specific-sidebar-fill) !important;\n      }\n    ",
-    "preview": [
-      "#17212B",
-      "#333B45",
-      "#5BD0D6",
-      "#FFFAFF"
-    ]
-  }
-];
     const parseHex = hex => {
       const h = hex.replace('#', '');
       return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
@@ -2355,10 +2039,7 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
   }
 
 ];
-    const THEMES = [
-      ...NYX_SPECS.map(buildNyxTheme),
-      BASE_THEMES[0],
-    ];
+    const THEMES = NYX_SPECS.map(buildNyxTheme);
     const NS = 'eggsoup.themes';
     const STORAGE_KEY = 'eggsoup-dsh-themes:selected';
     const DEFAULT_THEME = 'eggsoup-vitesse-nyx';
@@ -2368,8 +2049,8 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
     const AUTHOR_LABEL = 'eggsoup';
 
     // Theme previews borrow the real pixel-art backdrop and the palette
-    // that gives each theme its identity. Ocean adapts to the active scheme;
-    // Nyx themes are dark-only and use their dark palette + pixel-art sky.
+    // that gives each theme its identity. Nyx themes are dark-only and use
+    // their dark palette + pixel-art sky.
     const previewArt = theme => {
       const match = /--nyx-art: url\("(data:image\/png;base64,[^"]+)"\)/.exec(theme.css);
       return match === null ? null : match[1];
@@ -2428,7 +2109,7 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
     };
     const UI_CSS = `
 /* Themes settings page: header with GitHub attribution, active theme summary,
-   grouped General (2-col) and Nyx dark series (3-col) grids. */
+   and the Nyx dark series (3-col) grid. */
 .eggsoup-themes-section {
   display: flex;
   flex-direction: column;
@@ -2624,11 +2305,6 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
   line-height: 18px;
   color: var(--dsw-alias-label-tertiary);
 }
-.eggsoup-themes-grid-general {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
 .eggsoup-themes-grid-nyx {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2640,7 +2316,6 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
   }
 }
 @media (max-width: 360px) {
-  .eggsoup-themes-grid-general,
   .eggsoup-themes-grid-nyx {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -2704,24 +2379,6 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
   background-position: right bottom;
   background-size: cover;
   box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.16);
-}
-.eggsoup-theme-preview-default {
-  align-items: center;
-  justify-content: center;
-  background-color: var(--dsw-alias-bg-layer-1);
-  background-image: radial-gradient(circle, var(--dsw-alias-border-l2) 0.5px, transparent 0.6px);
-  background-size: 8px 8px;
-  box-shadow: inset 0 0 0 0.5px var(--dsw-alias-border-l2);
-}
-.eggsoup-preview-default-word {
-  padding: 3px 9px;
-  border: 0.5px solid var(--dsw-alias-border-l2);
-  border-radius: 6px;
-  background: var(--dsw-alias-bg-layer-2);
-  color: var(--dsw-alias-label-secondary);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
 }
 .eggsoup-preview-sidebar {
   box-sizing: border-box;
@@ -3041,22 +2698,19 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
         return value === undefined || value === key ? fallback : value;
       };
       const defaultOption = { id: null, name: text('theme.default', 'DSH default'), darkOnly: false, preview: null };
-      const adaptiveThemes = [defaultOption, ...BASE_THEMES];
-      const nyxThemes = THEMES.filter(theme => theme.darkOnly);
+      const nyxThemes = THEMES;
       const activeTheme = selected === null ? defaultOption : (byId(selected) ?? defaultOption);
       const activeName = text('theme.' + (activeTheme.id ?? 'default'), activeTheme.name);
       const activeBadge = activeTheme.id === null
         ? text('badge.default', 'Follows appearance')
-        : activeTheme.darkOnly
-          ? text('badge.darkOnly', 'Dark only')
-          : text('badge.lightAndDark', 'Light + dark');
+        : text('badge.darkOnly', 'Dark only');
       const showLightWarning = scheme === 'light' && activeTheme.darkOnly === true;
 
-      const renderCard = (theme, { showBadge }) => {
-        const displayName = text('theme.' + (theme.id ?? 'default'), theme.name);
+      const renderCard = theme => {
+        const displayName = text('theme.' + theme.id, theme.name);
         const isSelected = selected === theme.id;
         return h('button', {
-          key: theme.id ?? 'default',
+          key: theme.id,
           type: 'button',
           className: 'eggsoup-theme',
           style: previewStyle(theme, scheme),
@@ -3064,24 +2718,10 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
           'aria-pressed': isSelected,
           onClick: () => manager.select(theme.id),
         },
-          theme.id === null
-            ? h('span', {
-                key: 'preview',
-                className: 'eggsoup-theme-preview eggsoup-theme-preview-default',
-                'aria-hidden': 'true',
-              }, h('span', { className: 'eggsoup-preview-default-word' }, 'DSH'))
-            : h(ThemePreview, { key: 'preview' }),
+          h(ThemePreview, { key: 'preview' }),
           h('span', { className: 'eggsoup-theme-meta' },
             h('span', { className: 'eggsoup-theme-name' }, displayName),
-            showBadge
-              ? h('span', { className: 'eggsoup-theme-badge' },
-                  theme.id === null
-                    ? text('badge.default', 'Follows appearance')
-                    : theme.darkOnly
-                      ? text('badge.darkOnly', 'Dark only')
-                      : text('badge.lightAndDark', 'Light + dark'),
-                )
-              : h(SwatchDots, { colors: previewSwatches(theme, scheme) }),
+            h(SwatchDots, { colors: previewSwatches(theme, scheme) }),
           ),
           isSelected ? h('span', { className: 'eggsoup-theme-check', 'aria-hidden': 'true' }, '✓') : null,
         );
@@ -3138,17 +2778,6 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
         ),
         h('div', { className: 'eggsoup-themes-group' },
           h('div', { className: 'eggsoup-themes-group-head' },
-            h('h3', { className: 'eggsoup-themes-group-title' }, text('group.general', 'Adaptive themes')),
-            h('span', { className: 'eggsoup-themes-group-meta' }, text('group.generalMeta', 'Works with light & dark')),
-          ),
-          h('div', {
-            className: 'eggsoup-themes-grid-general',
-            role: 'group',
-            'aria-label': text('group.general', 'Adaptive themes'),
-          }, adaptiveThemes.map(theme => renderCard(theme, { showBadge: true }))),
-        ),
-        h('div', { className: 'eggsoup-themes-group' },
-          h('div', { className: 'eggsoup-themes-group-head' },
             h('h3', { className: 'eggsoup-themes-group-title' }, text('group.nyx', 'Nyx dark series')),
             h('span', { className: 'eggsoup-themes-group-meta' },
               `${text('badge.darkOnly', 'Dark only')} · ${nyxThemes.length}`,
@@ -3158,7 +2787,7 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
             className: 'eggsoup-themes-grid-nyx',
             role: 'group',
             'aria-label': text('group.nyx', 'Nyx dark series'),
-          }, nyxThemes.map(theme => renderCard(theme, { showBadge: false }))),
+          }, nyxThemes.map(renderCard)),
         ),
       );
     }
@@ -3187,14 +2816,12 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
         ctx.effect(() => ctx.locale.register(NS, {
           en: {
             title: 'Themes',
-            description: 'Choose a theme. Themes follow the current Appearance setting; the Nyx series is dark-only. Picking DSH default removes the theme layer.',
+            description: 'Choose a theme from the Nyx dark series (dark appearance only). Resetting to default removes the theme layer.',
             'repo.aria': 'eggsoup — GitHub repository YL404/eggsoup-dsh-themes (opens in new tab)',
             'status.active': 'Current',
             'action.reset': 'Reset to default',
             'action.switchDark': 'Switch to dark',
             'notice.lightMode': 'Light appearance is active; Nyx themes only take effect in dark appearance.',
-            'group.general': 'Adaptive themes',
-            'group.generalMeta': 'Follows appearance',
             'group.nyx': 'Nyx dark series',
             'theme.default': 'DSH default',
             'theme.eggsoup-vitesse-nyx': 'Vitesse Nyx',
@@ -3212,21 +2839,17 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
             'theme.eggsoup-gruvbox-nyx': 'Gruvbox Nyx',
             'theme.eggsoup-flexoki-dark-nyx': 'Flexoki Dark Nyx',
             'theme.eggsoup-openchamber-dark-nyx': 'OpenChamber Dark Nyx',
-            'theme.eggsoup-ocean': 'Ocean',
             'badge.default': 'Follows appearance',
             'badge.darkOnly': 'Dark only',
-            'badge.lightAndDark': 'Light + dark',
           },
           zh: {
             title: '主题',
-            description: '选择界面主题。主题跟随当前外观设置，Nyx 系列仅提供深色配色；选择“DSH 默认”会移除主题层。',
+            description: '选择 Nyx 暗夜系列深色主题（仅在深色外观下生效）；点击“恢复默认”会移除主题层。',
             'repo.aria': 'eggsoup — GitHub 仓库 YL404/eggsoup-dsh-themes（在新标签页打开）',
             'status.active': '当前',
             'action.reset': '恢复默认',
             'action.switchDark': '切换为深色',
             'notice.lightMode': '当前为浅色外观，Nyx 系列主题仅在深色外观下生效。',
-            'group.general': '通用主题',
-            'group.generalMeta': '适配浅色与深色',
             'group.nyx': 'Nyx 暗夜系列',
             'theme.default': 'DSH 默认',
             'theme.eggsoup-vitesse-nyx': '流光夜',
@@ -3244,10 +2867,8 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
             'theme.eggsoup-gruvbox-nyx': '复古夜',
             'theme.eggsoup-flexoki-dark-nyx': '朱墨夜',
             'theme.eggsoup-openchamber-dark-nyx': '暖阁夜',
-            'theme.eggsoup-ocean': '碧海',
             'badge.default': '跟随外观',
             'badge.darkOnly': '仅深色',
-            'badge.lightAndDark': '浅色 + 深色',
           },
         }), 'eggsoup-themes: dictionaries');
 
