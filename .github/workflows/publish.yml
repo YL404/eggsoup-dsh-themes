@@ -1,0 +1,37 @@
+# Publishes via npm Trusted Publishing (OIDC): no NPM_TOKEN, no local login, no 2FA.
+#
+# One-time binding on npmjs.com (after the initial bootstrap publish creates the package):
+#   Packages -> eggsoup-dsh-themes -> Settings -> Trusted publishing -> Add trusted publisher
+#     Provider:           GitHub Actions
+#     Organization/user:  YL404
+#     Repository:         eggsoup-dsh-themes
+#     Workflow filename:  publish.yml
+#     Environment:        (leave empty)
+#
+# Release: bump `version` in package.json, commit, push to GitHub, then create and
+# push a `v*` tag pointing at the commit to publish. The tag ref must contain this file.
+
+name: Publish to npm
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # GitHub-signed OIDC token, exchanged by npm for publish auth
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+      # Node 22 bundles npm 10.x; trusted publishing needs npm >= 11.5.1
+      - run: npm install -g npm@latest
+      - run: npm publish --provenance
