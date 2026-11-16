@@ -1,9 +1,9 @@
 {
   "name": "eggsoup-dsh-themes",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "Theme manager for the DSH web UI: Ocean, Vitesse Nyx, and Vitesse Nyx Emerald, with preview cards on a dedicated Themes page in Settings",
+  "description": "Theme manager for the DSH web UI: Ocean and Nyx dark themes (Vitesse Nyx, Vitesse Nyx Emerald, Catppuccin Mocha Nyx, Inkstone Xuanmo Nyx, Aurora Nyx, Gruvbox Nyx), with preview cards on a dedicated Themes page in Settings",
   "exports": {
     ".": "./index.js",
     "./client": "./client.js",

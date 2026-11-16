@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "Eggsoup Themes",
-    "description": "Theme manager for the web UI: registers Ocean, Vitesse Nyx, and Vitesse Nyx Emerald, with preview cards on a dedicated Themes page in Settings."
+    "description": "Theme manager for the web UI: registers Ocean and the Nyx dark theme series (Vitesse Nyx, Vitesse Nyx Emerald, Catppuccin Mocha Nyx, Inkstone Xuanmo Nyx, Aurora Nyx, Gruvbox Nyx), with preview cards on a dedicated Themes page in Settings."
   }
 }
