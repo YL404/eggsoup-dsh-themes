@@ -1,5 +1,7 @@
 # Eggsoup DSH Themes
 
+GitHub: [YL404/eggsoup-dsh-themes](https://github.com/YL404/eggsoup-dsh-themes)
+
 One theme manager plugin for the DSH web UI. It carries sixteen static themes and adds a **Themes** page to the **Settings** navigation:
 
 - Vitesse Nyx
