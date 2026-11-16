@@ -2363,23 +2363,29 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
     const STORAGE_KEY = 'eggsoup-dsh-themes:selected';
     const DEFAULT_THEME = 'eggsoup-vitesse-nyx';
     const OVERRIDE_SOURCE = 'eggsoup-dsh-themes';
+    const REPO_URL = 'https://github.com/YL404/eggsoup-dsh-themes';
+    const REPO_LABEL = 'YL404/eggsoup-dsh-themes';
+    const AUTHOR_LABEL = 'eggsoup';
 
-    // Theme previews borrow the real pixel-art backdrop and the dark palette
-    // that gives each theme its identity. Ocean has no art, so its accent glow
-    // substitutes for the sky.
+    // Theme previews borrow the real pixel-art backdrop and the palette
+    // that gives each theme its identity. Ocean adapts to the active scheme;
+    // Nyx themes are dark-only and use their dark palette + pixel-art sky.
     const previewArt = theme => {
       const match = /--nyx-art: url\("(data:image\/png;base64,[^"]+)"\)/.exec(theme.css);
       return match === null ? null : match[1];
     };
-    const previewPalette = theme => {
-      const token = name => theme.tokens[name]?.dark;
+    const previewPalette = (theme, scheme = 'dark') => {
+      const mode = theme.darkOnly ? 'dark' : (scheme === 'light' ? 'light' : 'dark');
+      const token = name => theme.tokens[name]?.[mode];
+      const bg = token('--dsw-alias-bg-base') ?? theme.preview?.[0];
       return {
-        bg: token('--dsw-alias-bg-base') ?? theme.preview?.[0],
+        bg,
         sidebar: token('--dsw-specific-sidebar-fill') ?? token('--dsw-alias-bg-layer-1') ?? theme.preview?.[1],
         surface: token('--dsw-alias-bg-layer-2') ?? theme.preview?.[1],
         input: token('--dsw-specific-input-major') ?? token('--dsw-alias-bg-layer-2') ?? theme.preview?.[1],
         bubble: token('--dsw-specific-bubble') ?? token('--dsw-alias-bg-layer-2') ?? theme.preview?.[1],
         accent: token('--dsw-alias-brand-primary') ?? theme.preview?.[2],
+        onAccent: token('--dsw-alias-label-primary-foreground') ?? token('--dsw-alias-label-on-color') ?? bg,
         secondary: theme.darkOnly
           ? theme.preview?.[3] ?? token('--dsw-alias-border-l3')
           : token('--dsw-alias-brand-primary') ?? theme.preview?.[2],
@@ -2388,15 +2394,15 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
         border: token('--dsw-alias-border-l2') ?? theme.preview?.[1],
       };
     };
-    const previewBackdrop = theme => {
+    const previewBackdrop = (theme, scheme = 'dark') => {
       const art = previewArt(theme);
       if (art !== null) return `url("${art}")`;
-      const palette = previewPalette(theme);
+      const palette = previewPalette(theme, scheme);
       return `radial-gradient(120% 90% at 78% 18%, color-mix(in srgb, ${palette.accent} 30%, transparent), transparent 62%), linear-gradient(155deg, ${palette.bg}, ${palette.surface})`;
     };
-    const previewStyle = theme => {
+    const previewStyle = (theme, scheme = 'dark') => {
       if (theme.id === null) return undefined;
-      const palette = previewPalette(theme);
+      const palette = previewPalette(theme, scheme);
       return {
         '--eggsoup-pv-bg': palette.bg,
         '--eggsoup-pv-sidebar': palette.sidebar,
@@ -2404,34 +2410,240 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
         '--eggsoup-pv-input': palette.input,
         '--eggsoup-pv-bubble': palette.bubble,
         '--eggsoup-pv-accent': palette.accent,
+        '--eggsoup-pv-on-accent': palette.onAccent,
         '--eggsoup-pv-secondary': palette.secondary,
         '--eggsoup-pv-text': palette.text,
         '--eggsoup-pv-muted': palette.muted,
         '--eggsoup-pv-border': palette.border,
-        '--eggsoup-pv-art': previewBackdrop(theme),
+        '--eggsoup-pv-art': previewBackdrop(theme, scheme),
       };
     };
+    const previewSwatches = (theme, scheme = 'dark') => {
+      if (theme.id === null) return null;
+      if (!theme.darkOnly && scheme === 'light') {
+        const p = previewPalette(theme, 'light');
+        return [p.bg, p.sidebar, p.accent, p.text];
+      }
+      return theme.preview;
+    };
     const UI_CSS = `
-/* Themes settings page: the header block follows host settings sections,
-   and the picker lays its cards out in a responsive grid. */
+/* Themes settings page: header with GitHub attribution, active theme summary,
+   grouped General (2-col) and Nyx dark series (3-col) grids. */
 .eggsoup-themes-section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   max-width: 720px;
+  padding-bottom: 8px;
   color: var(--dsw-alias-label-primary);
 }
-.eggsoup-themes-title { margin: 0; font-size: 18px; font-weight: 600; }
+.eggsoup-themes-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.eggsoup-themes-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+.eggsoup-themes-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 26px;
+}
+.eggsoup-themes-repo {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  padding: 3px 9px;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: 999px;
+  background: var(--dsw-alias-bg-layer-1);
+  color: var(--dsw-alias-label-secondary);
+  font-size: 11.5px;
+  line-height: 17px;
+  text-decoration: none;
+  transition: border-color .15s, background .15s, color .15s;
+}
+@media (hover: hover) {
+  .eggsoup-themes-repo:hover {
+    border-color: var(--dsw-alias-border-l4);
+    background: var(--dsw-alias-interactive-bg-hover);
+    color: var(--dsw-alias-label-primary);
+  }
+}
+.eggsoup-themes-repo:focus-visible {
+  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline-offset: 2px;
+}
+.eggsoup-themes-repo-author {
+  font-weight: 500;
+  color: var(--dsw-alias-label-primary);
+}
+.eggsoup-themes-repo-sep {
+  opacity: 0.45;
+}
+.eggsoup-themes-repo-slug {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .eggsoup-themes-description {
   margin: 0;
   font-size: 13px;
   line-height: 20px;
   color: var(--dsw-alias-label-tertiary);
 }
-.eggsoup-themes-list {
+.eggsoup-themes-status-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.eggsoup-themes-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 10px 12px;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: var(--dsw-radius-lg);
+  background: var(--dsw-alias-bg-layer-1);
+}
+.eggsoup-themes-status-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.eggsoup-themes-status-text {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  min-width: 0;
+}
+.eggsoup-themes-status-label {
+  font-size: 12px;
+  color: var(--dsw-alias-label-tertiary);
+}
+.eggsoup-themes-status-name {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--dsw-alias-label-primary);
+}
+.eggsoup-themes-reset {
+  flex: none;
+  padding: 4px 10px;
+  border: 0.5px solid var(--dsw-alias-border-l3);
+  border-radius: var(--dsw-radius-sm);
+  background: transparent;
+  color: var(--dsw-alias-label-secondary);
+  font: inherit;
+  font-size: 12px;
+  line-height: 18px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, color .15s;
+}
+@media (hover: hover) {
+  .eggsoup-themes-reset:hover:not(:disabled) {
+    background: var(--dsw-alias-interactive-bg-hover);
+    color: var(--dsw-alias-label-primary);
+  }
+}
+.eggsoup-themes-reset:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.eggsoup-themes-reset:focus-visible {
+  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline-offset: 2px;
+}
+.eggsoup-themes-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 9px 12px;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: var(--dsw-radius-md);
+  background: var(--dsw-alias-state-warn-tertiary);
+  color: var(--dsw-alias-state-warn-label);
+  font-size: 12.5px;
+  line-height: 18px;
+}
+.eggsoup-themes-notice-action {
+  flex: none;
+  padding: 3px 10px;
+  border: 0.5px solid color-mix(in srgb, var(--dsw-alias-state-warn-label) 35%, transparent);
+  border-radius: var(--dsw-radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  cursor: pointer;
+  transition: background .15s;
+}
+@media (hover: hover) {
+  .eggsoup-themes-notice-action:hover {
+    background: color-mix(in srgb, var(--dsw-alias-state-warn-label) 12%, transparent);
+  }
+}
+.eggsoup-themes-notice-action:focus-visible {
+  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline-offset: 2px;
+}
+.eggsoup-themes-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.eggsoup-themes-group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.eggsoup-themes-group-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--dsw-alias-label-secondary);
+}
+.eggsoup-themes-group-meta {
+  font-size: 11.5px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-tertiary);
+}
+.eggsoup-themes-grid-general {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.eggsoup-themes-grid-nyx {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+@media (max-width: 600px) {
+  .eggsoup-themes-grid-nyx {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 360px) {
+  .eggsoup-themes-grid-general,
+  .eggsoup-themes-grid-nyx {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 .eggsoup-theme {
   /* Defaults paint the current DSH appearance; theme cards override every
@@ -2442,6 +2654,7 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
   --eggsoup-pv-input: var(--dsw-alias-bg-layer-2);
   --eggsoup-pv-bubble: var(--dsw-alias-bg-layer-2);
   --eggsoup-pv-accent: var(--dsw-alias-brand-primary);
+  --eggsoup-pv-on-accent: var(--dsw-alias-label-primary-foreground);
   --eggsoup-pv-secondary: var(--dsw-alias-border-l3);
   --eggsoup-pv-text: var(--dsw-alias-label-primary);
   --eggsoup-pv-muted: var(--dsw-alias-label-secondary);
@@ -2451,25 +2664,29 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 8px;
-  padding: 8px;
+  gap: 7px;
+  min-width: 0;
+  padding: 6px;
   border: 0.5px solid var(--dsw-alias-settings-card-stroke);
-  border-radius: var(--dsw-radius-xl);
+  border-radius: var(--dsw-radius-lg);
   background: var(--dsw-alias-settings-card-fill);
   color: var(--dsw-alias-label-primary);
   font: inherit;
-  font-size: 14px;
-  line-height: 22px;
+  font-size: 13px;
+  line-height: 20px;
   text-align: left;
   cursor: pointer;
-  transition: border-color .16s, background .16s;
+  transition: border-color .16s, background .16s, box-shadow .16s;
 }
 @media (hover: hover) {
-  .eggsoup-theme:hover:not([aria-pressed='true']) { background: var(--dsw-alias-interactive-bg-hover); }
+  .eggsoup-theme:hover:not([aria-pressed='true']) {
+    background: var(--dsw-alias-interactive-bg-hover);
+  }
 }
 .eggsoup-theme[aria-pressed='true'] {
   border-color: var(--dsw-alias-border-selected);
   background: var(--dsw-alias-bg-module-platform);
+  box-shadow: 0 0 0 1px var(--dsw-alias-border-selected);
 }
 .eggsoup-theme:focus-visible {
   outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
@@ -2479,9 +2696,9 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
   position: relative;
   display: flex;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 10;
   overflow: hidden;
-  border-radius: var(--dsw-radius-lg);
+  border-radius: var(--dsw-radius-md);
   background-color: var(--eggsoup-pv-bg);
   background-image: var(--eggsoup-pv-art);
   background-position: right bottom;
@@ -2497,7 +2714,8 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
   box-shadow: inset 0 0 0 0.5px var(--dsw-alias-border-l2);
 }
 .eggsoup-preview-default-word {
-  padding: 3px 8px;
+  padding: 3px 9px;
+  border: 0.5px solid var(--dsw-alias-border-l2);
   border-radius: 6px;
   background: var(--dsw-alias-bg-layer-2);
   color: var(--dsw-alias-label-secondary);
@@ -2508,17 +2726,17 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
 .eggsoup-preview-sidebar {
   box-sizing: border-box;
   flex: none;
-  width: 27%;
+  width: 28%;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 8px 6px;
+  gap: 3px;
+  padding: 6px 5px;
   background: var(--eggsoup-pv-sidebar);
   border-right: 0.5px solid var(--eggsoup-pv-border);
 }
 .eggsoup-preview-brand {
-  width: 52%;
-  height: 5px;
+  width: 54%;
+  height: 4px;
   margin-bottom: 2px;
   border-radius: 2px;
   background: var(--eggsoup-pv-text);
@@ -2526,7 +2744,7 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
 }
 .eggsoup-preview-row {
   width: 100%;
-  height: 5px;
+  height: 4px;
   border-radius: 2px;
   background: var(--eggsoup-pv-muted);
   opacity: 0.4;
@@ -2538,23 +2756,23 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 8px;
+  gap: 3.5px;
+  padding: 6px;
   background: color-mix(in srgb, var(--eggsoup-pv-surface) 68%, transparent);
 }
 .eggsoup-preview-bubble {
   align-self: flex-end;
   width: 48%;
-  height: 13px;
+  height: 10px;
   border: 0.5px solid color-mix(in srgb, var(--eggsoup-pv-secondary) 55%, transparent);
-  border-radius: 5px;
+  border-radius: 4px;
   background: linear-gradient(90deg,
     color-mix(in srgb, var(--eggsoup-pv-accent) 28%, var(--eggsoup-pv-bubble)),
     var(--eggsoup-pv-bubble));
 }
 .eggsoup-preview-line {
   width: 90%;
-  height: 4px;
+  height: 3.5px;
   border-radius: 2px;
   background: var(--eggsoup-pv-muted);
   opacity: 0.38;
@@ -2565,25 +2783,25 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  gap: 5px;
-  height: 18px;
+  gap: 4px;
+  height: 14px;
   margin-top: auto;
-  padding: 0 5px;
+  padding: 0 4px;
   border: 0.5px solid var(--eggsoup-pv-border);
-  border-radius: 5px;
+  border-radius: 4px;
   background: var(--eggsoup-pv-input);
 }
 .eggsoup-preview-composer-line {
   flex: 1;
-  height: 4px;
+  height: 3.5px;
   border-radius: 2px;
   background: var(--eggsoup-pv-muted);
   opacity: 0.4;
 }
 .eggsoup-preview-send {
   flex: none;
-  width: 9px;
-  height: 9px;
+  width: 7px;
+  height: 7px;
   border-radius: 2px;
   background: var(--eggsoup-pv-secondary);
 }
@@ -2592,11 +2810,31 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
-  padding: 0 2px 2px;
+  padding: 0 3px 2px;
 }
-.eggsoup-theme-name { min-width: 0; font-size: 14px; line-height: 22px; }
+.eggsoup-themes-grid-nyx .eggsoup-theme-meta {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+.eggsoup-theme-name {
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+}
+.eggsoup-themes-grid-nyx .eggsoup-theme-name {
+  flex: none;
+  width: 100%;
+  font-size: 12.5px;
+}
 .eggsoup-theme-badge {
   flex: none;
   padding: 0 7px;
@@ -2608,19 +2846,38 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
   line-height: 17px;
   white-space: nowrap;
 }
+.eggsoup-theme-swatches {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 2.5px;
+}
+.eggsoup-theme-swatch {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 0.5px rgba(128, 128, 128, 0.35);
+}
+.eggsoup-theme-swatch-default {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--dsw-alias-bg-base) 50%, var(--dsw-alias-label-primary) 50%);
+  box-shadow: inset 0 0 0 0.5px var(--dsw-alias-border-l3);
+}
 .eggsoup-theme-check {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 10px;
+  right: 10px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: var(--eggsoup-pv-accent);
-  color: var(--eggsoup-pv-bg);
-  font-size: 11px;
+  color: var(--eggsoup-pv-on-accent);
+  font-size: 10.5px;
   font-weight: 700;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.32);
 }
@@ -2630,12 +2887,19 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
     let themeService = null;
     let overrideDisposer = null;
     let selectedId = null;
+    let currentScheme = 'dark';
     let themeCssTag = null;
     const listeners = new Set();
     const notify = () => { for (const listener of listeners) listener(); };
     const setSelected = id => {
       if (selectedId === id) return;
       selectedId = id;
+      notify();
+    };
+    const setColorScheme = scheme => {
+      if (scheme !== 'light' && scheme !== 'dark') return;
+      if (currentScheme === scheme) return;
+      currentScheme = scheme;
       notify();
     };
     const setThemeCss = id => {
@@ -2667,6 +2931,7 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
     const manager = {
       list: () => THEMES,
       selected: () => selectedId,
+      colorScheme: () => currentScheme,
       subscribe: listener => {
         listeners.add(listener);
         return () => listeners.delete(listener);
@@ -2675,7 +2940,26 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
         if (!applySelection(id)) return;
         writeStored(id === null ? 'builtin' : id);
       },
+      setAppearance: mode => {
+        if (themeService === null) return;
+        try { themeService.setTheme(mode); } catch {}
+      },
     };
+
+    function GitHubIcon({ size = 13 }) {
+      return h('svg', {
+        width: size,
+        height: size,
+        viewBox: '0 0 16 16',
+        fill: 'currentColor',
+        'aria-hidden': 'true',
+        focusable: 'false',
+      },
+        h('path', {
+          d: 'M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z',
+        }),
+      );
+    }
 
     function ThemeIcon({ size = 16, active = false }) {
       return h('svg', {
@@ -2732,45 +3016,149 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
       );
     }
 
+    function SwatchDots({ colors }) {
+      if (!Array.isArray(colors) || colors.length === 0) {
+        return h('span', { className: 'eggsoup-theme-swatch-default', 'aria-hidden': 'true' });
+      }
+      return h('span', { className: 'eggsoup-theme-swatches', 'aria-hidden': 'true' },
+        colors.map((color, index) => h('span', {
+          key: index,
+          className: 'eggsoup-theme-swatch',
+          style: { backgroundColor: color },
+        })),
+      );
+    }
+
     function ThemeSection({ t }) {
       const [selected, setSelected] = React.useState(manager.selected());
-      React.useEffect(() => manager.subscribe(() => setSelected(manager.selected())), []);
+      const [scheme, setScheme] = React.useState(manager.colorScheme());
+      React.useEffect(() => manager.subscribe(() => {
+        setSelected(manager.selected());
+        setScheme(manager.colorScheme());
+      }), []);
       const text = (key, fallback) => {
         const value = typeof t === 'function' ? t(key) : undefined;
         return value === undefined || value === key ? fallback : value;
       };
-      const options = [{ id: null, name: text('theme.default', 'DSH default'), preview: null }].concat(THEMES);
+      const defaultOption = { id: null, name: text('theme.default', 'DSH default'), darkOnly: false, preview: null };
+      const adaptiveThemes = [defaultOption, ...BASE_THEMES];
+      const nyxThemes = THEMES.filter(theme => theme.darkOnly);
+      const activeTheme = selected === null ? defaultOption : (byId(selected) ?? defaultOption);
+      const activeName = text('theme.' + (activeTheme.id ?? 'default'), activeTheme.name);
+      const activeBadge = activeTheme.id === null
+        ? text('badge.default', 'Follows appearance')
+        : activeTheme.darkOnly
+          ? text('badge.darkOnly', 'Dark only')
+          : text('badge.lightAndDark', 'Light + dark');
+      const showLightWarning = scheme === 'light' && activeTheme.darkOnly === true;
+
+      const renderCard = (theme, { showBadge }) => {
+        const displayName = text('theme.' + (theme.id ?? 'default'), theme.name);
+        const isSelected = selected === theme.id;
+        return h('button', {
+          key: theme.id ?? 'default',
+          type: 'button',
+          className: 'eggsoup-theme',
+          style: previewStyle(theme, scheme),
+          title: displayName,
+          'aria-pressed': isSelected,
+          onClick: () => manager.select(theme.id),
+        },
+          theme.id === null
+            ? h('span', {
+                key: 'preview',
+                className: 'eggsoup-theme-preview eggsoup-theme-preview-default',
+                'aria-hidden': 'true',
+              }, h('span', { className: 'eggsoup-preview-default-word' }, 'DSH'))
+            : h(ThemePreview, { key: 'preview' }),
+          h('span', { className: 'eggsoup-theme-meta' },
+            h('span', { className: 'eggsoup-theme-name' }, displayName),
+            showBadge
+              ? h('span', { className: 'eggsoup-theme-badge' },
+                  theme.id === null
+                    ? text('badge.default', 'Follows appearance')
+                    : theme.darkOnly
+                      ? text('badge.darkOnly', 'Dark only')
+                      : text('badge.lightAndDark', 'Light + dark'),
+                )
+              : h(SwatchDots, { colors: previewSwatches(theme, scheme) }),
+          ),
+          isSelected ? h('span', { className: 'eggsoup-theme-check', 'aria-hidden': 'true' }, '✓') : null,
+        );
+      };
+
       return h('section', { className: 'eggsoup-themes-section' },
-        h('h2', { className: 'eggsoup-themes-title' }, text('title', 'Themes')),
-        h('p', { className: 'eggsoup-themes-description' }, text('description', 'Choose a theme for the interface.')),
-        h('div', { className: 'eggsoup-themes-list', role: 'group', 'aria-label': text('title', 'Themes') },
-          options.map(theme => h('button', {
-            key: theme.id ?? 'default',
-            type: 'button',
-            className: 'eggsoup-theme',
-            style: previewStyle(theme),
-            'aria-pressed': selected === theme.id,
-            onClick: () => manager.select(theme.id),
-          },
-            theme.id === null
-              ? h('span', {
-                  key: 'preview',
-                  className: 'eggsoup-theme-preview eggsoup-theme-preview-default',
-                  'aria-hidden': 'true',
-                }, h('span', { className: 'eggsoup-preview-default-word' }, 'DSH'))
-              : h(ThemePreview, { key: 'preview' }),
-            h('span', { className: 'eggsoup-theme-meta' },
-              h('span', { className: 'eggsoup-theme-name' }, text('theme.' + (theme.id ?? 'default'), theme.name)),
-              h('span', { className: 'eggsoup-theme-badge' },
-                theme.id === null
-                  ? text('badge.default', 'Follows appearance')
-                  : theme.darkOnly
-                    ? text('badge.darkOnly', 'Dark only')
-                    : text('badge.lightAndDark', 'Light + dark'),
+        h('header', { className: 'eggsoup-themes-header' },
+          h('div', { className: 'eggsoup-themes-title-row' },
+            h('h2', { className: 'eggsoup-themes-title' }, text('title', 'Themes')),
+            h('a', {
+              className: 'eggsoup-themes-repo',
+              href: REPO_URL,
+              target: '_blank',
+              rel: 'noopener noreferrer',
+              title: REPO_URL,
+              'aria-label': text('repo.aria', `${AUTHOR_LABEL} — GitHub repository ${REPO_LABEL} (opens in new tab)`),
+            },
+              h(GitHubIcon, { size: 13 }),
+              h('span', { className: 'eggsoup-themes-repo-author' }, AUTHOR_LABEL),
+              h('span', { className: 'eggsoup-themes-repo-sep', 'aria-hidden': 'true' }, '·'),
+              h('span', { className: 'eggsoup-themes-repo-slug' }, REPO_LABEL),
+              h('span', { 'aria-hidden': 'true' }, '↗'),
+            ),
+          ),
+          h('p', { className: 'eggsoup-themes-description' }, text('description', 'Choose a theme for the interface.')),
+        ),
+        h('div', { className: 'eggsoup-themes-status-stack' },
+          h('div', { className: 'eggsoup-themes-status' },
+            h('div', { className: 'eggsoup-themes-status-main' },
+              h(SwatchDots, { colors: previewSwatches(activeTheme, scheme) }),
+              h('div', { className: 'eggsoup-themes-status-text' },
+                h('span', { className: 'eggsoup-themes-status-label' }, text('status.active', 'Active')),
+                h('span', { className: 'eggsoup-themes-status-name' }, activeName),
+                h('span', { className: 'eggsoup-theme-badge' }, activeBadge),
               ),
             ),
-            selected === theme.id ? h('span', { className: 'eggsoup-theme-check', 'aria-hidden': 'true' }, '✓') : null,
-          )),
+            h('button', {
+              type: 'button',
+              className: 'eggsoup-themes-reset',
+              disabled: selected === null,
+              onClick: () => manager.select(null),
+            }, text('action.reset', 'Reset to default')),
+          ),
+          showLightWarning
+            ? h('div', { className: 'eggsoup-themes-notice', role: 'status' },
+                h('span', null, text('notice.lightMode', 'Light appearance is active; Nyx themes only apply in dark appearance.')),
+                h('button', {
+                  type: 'button',
+                  className: 'eggsoup-themes-notice-action',
+                  onClick: () => manager.setAppearance('dark'),
+                }, text('action.switchDark', 'Switch to dark')),
+              )
+            : null,
+        ),
+        h('div', { className: 'eggsoup-themes-group' },
+          h('div', { className: 'eggsoup-themes-group-head' },
+            h('h3', { className: 'eggsoup-themes-group-title' }, text('group.general', 'Adaptive themes')),
+            h('span', { className: 'eggsoup-themes-group-meta' }, text('group.generalMeta', 'Works with light & dark')),
+          ),
+          h('div', {
+            className: 'eggsoup-themes-grid-general',
+            role: 'group',
+            'aria-label': text('group.general', 'Adaptive themes'),
+          }, adaptiveThemes.map(theme => renderCard(theme, { showBadge: true }))),
+        ),
+        h('div', { className: 'eggsoup-themes-group' },
+          h('div', { className: 'eggsoup-themes-group-head' },
+            h('h3', { className: 'eggsoup-themes-group-title' }, text('group.nyx', 'Nyx dark series')),
+            h('span', { className: 'eggsoup-themes-group-meta' },
+              `${text('badge.darkOnly', 'Dark only')} · ${nyxThemes.length}`,
+            ),
+          ),
+          h('div', {
+            className: 'eggsoup-themes-grid-nyx',
+            role: 'group',
+            'aria-label': text('group.nyx', 'Nyx dark series'),
+          }, nyxThemes.map(theme => renderCard(theme, { showBadge: false }))),
         ),
       );
     }
@@ -2793,12 +3181,21 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
         const theme = ctx.get('theme');
         if (theme === undefined) return;
         themeService = theme;
+        setColorScheme(theme.getTheme().active.colorScheme);
         const t = ctx.locale.bind(NS);
 
         ctx.effect(() => ctx.locale.register(NS, {
           en: {
             title: 'Themes',
-            description: 'Choose a theme. Themes follow the current Appearance setting; the Nyx themes are dark-only. Picking DSH default removes the theme layer.',
+            description: 'Choose a theme. Themes follow the current Appearance setting; the Nyx series is dark-only. Picking DSH default removes the theme layer.',
+            'repo.aria': 'eggsoup — GitHub repository YL404/eggsoup-dsh-themes (opens in new tab)',
+            'status.active': 'Current',
+            'action.reset': 'Reset to default',
+            'action.switchDark': 'Switch to dark',
+            'notice.lightMode': 'Light appearance is active; Nyx themes only take effect in dark appearance.',
+            'group.general': 'Adaptive themes',
+            'group.generalMeta': 'Follows appearance',
+            'group.nyx': 'Nyx dark series',
             'theme.default': 'DSH default',
             'theme.eggsoup-vitesse-nyx': 'Vitesse Nyx',
             'theme.eggsoup-vitesse-nyx-emerald': 'Vitesse Nyx Emerald',
@@ -2822,7 +3219,15 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
           },
           zh: {
             title: '主题',
-            description: '选择界面主题。主题会跟随当前外观设置，Nyx 系列主题仅提供深色配色；选择“DSH 默认”会移除主题层。',
+            description: '选择界面主题。主题跟随当前外观设置，Nyx 系列仅提供深色配色；选择“DSH 默认”会移除主题层。',
+            'repo.aria': 'eggsoup — GitHub 仓库 YL404/eggsoup-dsh-themes（在新标签页打开）',
+            'status.active': '当前',
+            'action.reset': '恢复默认',
+            'action.switchDark': '切换为深色',
+            'notice.lightMode': '当前为浅色外观，Nyx 系列主题仅在深色外观下生效。',
+            'group.general': '通用主题',
+            'group.generalMeta': '适配浅色与深色',
+            'group.nyx': 'Nyx 暗夜系列',
             'theme.default': 'DSH 默认',
             'theme.eggsoup-vitesse-nyx': '流光夜',
             'theme.eggsoup-vitesse-nyx-emerald': '翡翠夜',
@@ -2845,6 +3250,10 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
             'badge.lightAndDark': '浅色 + 深色',
           },
         }), 'eggsoup-themes: dictionaries');
+
+        ctx.on('theme/change', snapshot => {
+          setColorScheme(snapshot.active.colorScheme);
+        });
 
         ctx.effect(() => {
           const tag = installTag('eggsoup-dsh-themes/ui.css', UI_CSS);
