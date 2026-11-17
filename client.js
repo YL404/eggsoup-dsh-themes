@@ -492,12 +492,13 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
   opacity: ${spec.emblemOpacity ?? 0.92};
 }
 /* Plugin manager page: the artwork is painted behind every column and this
-   page has no opaque surface of its own, so its list text sits directly on
-   the pixel grid. Give the page a near-opaque themed backdrop. The card fill
-   and stroke aliases already resolve to this theme's layer-2/border tokens,
-   so they need no separate override here. */
+   page has no opaque surface of its own. A translucent, lightly blurred
+   themed backdrop lets the pixel art read through as a soft wash while
+   keeping list text legible. Card fill/stroke aliases already resolve to
+   this theme's layer-2/border tokens, so they need no separate override. */
 body[data-ds-dark-theme] [data-plugin-panel] {
-  background: ${hexRgba(conversationBg, 0.96)};
+  background: ${hexRgba(conversationBg, 0.8)};
+  backdrop-filter: blur(8px);
 }
 /* The built-in header shrinks on scroll. A soft shadow on the scrolled paint
    and a stronger divider on the compact bar make the height change read as a
