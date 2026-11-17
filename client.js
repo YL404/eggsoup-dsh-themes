@@ -491,6 +491,23 @@ body[data-ds-dark-theme] [data-content-phase='hero'] [data-composer-card]::befor
   filter: ${spec.emblemFilter};
   opacity: ${spec.emblemOpacity ?? 0.92};
 }
+/* Plugin manager page: the artwork is painted behind every column and this
+   page has no opaque surface of its own, so its list text sits directly on
+   the pixel grid. Give the page a near-opaque themed backdrop. The card fill
+   and stroke aliases already resolve to this theme's layer-2/border tokens,
+   so they need no separate override here. */
+body[data-ds-dark-theme] [data-plugin-panel] {
+  background: ${hexRgba(conversationBg, 0.96)};
+}
+/* The built-in header shrinks on scroll. A soft shadow on the scrolled paint
+   and a stronger divider on the compact bar make the height change read as a
+   deliberate sticky surface instead of text sliding over the artwork. */
+body[data-ds-dark-theme] [data-plugin-bar][data-natural][data-scrolled]::before {
+  box-shadow: 0 6px 16px -10px rgba(0, 0, 0, 0.6);
+}
+body[data-ds-dark-theme] [data-plugin-bar][data-natural][data-compact]::after {
+  border-bottom-color: ${mixHex(c.border, c.text, 0.12)} !important;
+}
 `;
     };
     const buildNyxTheme = spec => ({
